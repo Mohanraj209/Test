@@ -33,6 +33,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           pwd
+          ls
           kubectl apply -f database.yml
           kubectl apply -f backend.yml
           kubectl apply -f frontend.yml
