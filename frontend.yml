@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  strategy:
+    type: Recreate
+
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: frontend
+        image: nginx:latest
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: chatapp
+            mountPath: /etc/nginx/conf.d/
+            readOnly: true
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
+      volumes:
+      - name: chatapp
+        configMap:
+          name: configmap
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  type: ClusterIP
+  ports:
+    - name: frontend
+      port: 80
+      targetPort: 80
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: configmap
+spec:
+data:
+  nginxconf.conf: |
+      server {
+      listen 80 ;
+      server_name _default;
+      root /new_chatapp/fundoo;
+      location / {
+      proxy_pass http://backend:8000;
+      }
+      }

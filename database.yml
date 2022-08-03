@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: moshtab/database_imageupdated:latest
+        resources:
+              limits:
+                cpu: 500m
+              requests:
+                cpu: 200m
+
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: database-service
+spec:
+  selector:
+    app: mysql
+  type: ClusterIP
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
